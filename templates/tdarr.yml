@@ -1,0 +1,66 @@
+# tdarr
+# <mkdir /volume1/docker/appdata/tdarr>
+  tdarr:
+    container_name: tdarr
+    image: haveagitgat/tdarr
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-file: ${DOCKERLOGGING_MAXFILE}
+        max-size: ${DOCKERLOGGING_MAXSIZE}
+    labels:
+      - org.hotio.pullio.update=${PULLIO_UPDATE}
+      - org.hotio.pullio.notify=${PULLIO_NOTIFY}
+      - org.hotio.pullio.discord.webhook=${PULLIO_DISCORD_WEBHOOK}
+    ports:
+      - 8265:8265                                       # this is the port for the GUI interface
+      - 8266:8266
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - serverIP=0.0.0.0                                # you MUST replace this with the IP of your server
+      - serverPort=8266
+      - webUIPort=8265
+    volumes:
+      - ${DOCKERCONFDIR}/tdarr/server:/app/server:rw
+      - ${DOCKERCONFDIR}/tdarr/configs:/app/configs:rw
+      - ${DOCKERCONFDIR}/tdarr/logs:/app/logs:rw
+      - ${DOCKERSTORAGEDIR}/media:/media:rw
+      - ${DOCKERCONFDIR}/tdarr/temp:/temp:rw
+
+# tdarr_node
+# <mkdir /volume1/docker/appdata/tdarr>
+  tdarr_node:
+    container_name: tdarr_node
+    image: haveagitgat/tdarr_node
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-file: ${DOCKERLOGGING_MAXFILE}
+        max-size: ${DOCKERLOGGING_MAXSIZE}
+    labels:
+      - org.hotio.pullio.update=${PULLIO_UPDATE}
+      - org.hotio.pullio.notify=${PULLIO_NOTIFY}
+      - org.hotio.pullio.discord.webhook=${PULLIO_DISCORD_WEBHOOK}
+    ports:
+      - 8267:8267
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - nodeID=MyFirstTdarrNode
+      - nodeIP=0.0.0.0                                  # you MUST replace this with the IP of your server, or node if node is runnong on different machine
+      - nodePort=8267
+      - serverIP=0.0.0.0                                # you MUST replace this with the IP of your server
+      - serverPort=8266
+      - webUIPort=8265
+    devices:                                            # optional: if you have a Syno with an Intel CPU with quicksync and want hardware transcoding
+      - /dev/dri:/dev/dri                               # optional: if you have a Syno with an Intel CPU with quicksync and want hardware transcoding
+    volumes:
+      - ${DOCKERCONFDIR}/tdarr/configs:/app/configs:rw
+      - ${DOCKERCONFDIR}/tdarr/logs:/app/logs:rw
+      - ${DOCKERSTORAGEDIR}/media:/media:rw
+      - ${DOCKERCONFDIR}/tdarr/temp:/temp:rw
